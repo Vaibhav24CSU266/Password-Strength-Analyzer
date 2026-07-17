@@ -1,0 +1,121 @@
+import re
+import random
+import string
+
+# Simulated database of old passwords
+old_passwords = [
+    "password123",
+    "admin123",
+    "welcome1",
+    "qwerty123",
+    "Vaibhav@123"
+]
+
+
+def check_password_strength(password):
+    score = 0
+    feedback = []
+
+    # Length
+    if len(password) >= 12:
+        score += 2
+    elif len(password) >= 8:
+        score += 1
+    else:
+        feedback.append("Password should be at least 8 characters long.")
+
+    # Uppercase
+    if re.search(r"[A-Z]", password):
+        score += 1
+    else:
+        feedback.append("Add uppercase letters.")
+
+    # Lowercase
+    if re.search(r"[a-z]", password):
+        score += 1
+    else:
+        feedback.append("Add lowercase letters.")
+
+    # Numbers
+    if re.search(r"\d", password):
+        score += 1
+    else:
+        feedback.append("Add numbers.")
+
+    # Special Characters
+    if re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        score += 2
+    else:
+        feedback.append("Add special characters.")
+
+    # Common Password Check
+    common = [
+        "password", "123456", "qwerty", "admin",
+        "welcome", "abc123", "password123"
+    ]
+
+    if password.lower() in common:
+        feedback.append("This is a common password.")
+        score = max(score - 2, 0)
+
+    # Reused Password Check
+    if password in old_passwords:
+        feedback.append("Password has been used before.")
+        score = max(score - 2, 0)
+
+    # Strength Rating
+    if score >= 7:
+        strength = "Very Strong"
+    elif score >= 5:
+        strength = "Strong"
+    elif score >= 3:
+        strength = "Medium"
+    else:
+        strength = "Weak"
+
+    return strength, feedback
+
+
+def generate_password(length=14):
+    characters = (
+        string.ascii_uppercase +
+        string.ascii_lowercase +
+        string.digits +
+        "!@#$%^&*"
+    )
+
+    while True:
+        password = ''.join(random.choice(characters) for _ in range(length))
+
+        if (re.search(r"[A-Z]", password) and
+            re.search(r"[a-z]", password) and
+            re.search(r"\d", password) and
+            re.search(r"[!@#$%^&*]", password)):
+            return password
+
+
+def main():
+    print("=" * 50)
+    print("      PASSWORD STRENGTH ANALYZER")
+    print("=" * 50)
+
+    password = input("Enter your password: ")
+
+    strength, feedback = check_password_strength(password)
+
+    print("\nPassword Strength:", strength)
+
+    if feedback:
+        print("\nSuggestions:")
+        for item in feedback:
+            print("-", item)
+
+        print("\nSuggested Strong Password:")
+        print(generate_password())
+
+    else:
+        print("\nExcellent! Your password follows good security practices.")
+
+
+if __name__ == "__main__":
+    main()
